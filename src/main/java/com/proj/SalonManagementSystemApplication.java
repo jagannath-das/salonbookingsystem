@@ -3,26 +3,43 @@ package com.proj;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.MapPropertySource;
 
 @SpringBootApplication
 public class SalonManagementSystemApplication {
 
     public static void main(String[] args) {
-        configureDatabaseUrl();
-        SpringApplication.run(SalonManagementSystemApplication.class, args);
+        SpringApplication app = new SpringApplication(SalonManagementSystemApplication.class);
+        app.addInitializers(context -> {
+            Map<String, Object> properties = configureDatabaseProperties();
+            if (!properties.isEmpty()) {
+                context.getEnvironment().getPropertySources()
+                        .addFirst(new MapPropertySource("normalizedDatabaseProperties", properties));
+            }
+        });
+        app.run(args);
     }
 
-    private static void configureDatabaseUrl() {
+    private static Map<String, Object> configureDatabaseProperties() {
+        Map<String, Object> properties = new HashMap<>();
         String datasourceUrl = firstPresent("SPRING_DATASOURCE_URL", "DATABASE_URL");
-        if (datasourceUrl == null || datasourceUrl.startsWith("jdbc:")) {
-            return;
+        if (datasourceUrl == null) {
+            return properties;
+        }
+
+        datasourceUrl = datasourceUrl.trim();
+        datasourceUrl = trimQuotes(datasourceUrl);
+        if (datasourceUrl.startsWith("jdbc:")) {
+            return properties;
         }
 
         if (!datasourceUrl.startsWith("mysql://")) {
-            return;
+            return properties;
         }
 
         URI uri = URI.create(datasourceUrl);
@@ -36,16 +53,17 @@ public class SalonManagementSystemApplication {
             jdbcUrl += jdbcUrl.contains("?") ? "&sslMode=REQUIRED" : "?sslMode=REQUIRED";
         }
 
-        System.setProperty("spring.datasource.url", jdbcUrl);
+        properties.put("spring.datasource.url", jdbcUrl);
 
         String userInfo = uri.getUserInfo();
         if (userInfo != null && !userInfo.isBlank()) {
             String[] credentials = userInfo.split(":", 2);
-            System.setProperty("spring.datasource.username", decode(credentials[0]));
+            properties.put("spring.datasource.username", decode(credentials[0]));
             if (credentials.length > 1) {
-                System.setProperty("spring.datasource.password", decode(credentials[1]));
+                properties.put("spring.datasource.password", decode(credentials[1]));
             }
         }
+        return properties;
     }
 
     private static String firstPresent(String... names) {
@@ -60,5 +78,12 @@ public class SalonManagementSystemApplication {
 
     private static String decode(String value) {
         return URLDecoder.decode(value, StandardCharsets.UTF_8);
+    }
+
+    private static String trimQuotes(String value) {
+        if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("'") && value.endsWith("'"))) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
     }
 }
