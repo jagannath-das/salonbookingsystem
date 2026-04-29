@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Profile</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="text-white">
+
+<section
+class="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+style="background-image:url('https://assets.prebuiltui.com/images/components/hero-section/hero-galaxy-bg.png')">
+
+<h2 class="text-4xl mb-6 font-bold">My Profile</h2>
+
+<table class="bg-black/40 backdrop-blur-md p-6 rounded text-center">
+<tbody id="output"></tbody>
+</table>
+
+<a href="user_dashboard.html" class="mt-6 underline">Back</a>
+
+</section>
+
+<script>
+
+/* ===============================
+   CONFIG
+================================*/
+const BASE=window.location.origin+"/user";
+const token=localStorage.getItem("token");
+
+/* ===============================
+   LOGIN CHECK
+================================*/
+if(!token){
+alert("Please login first");
+window.location.href="login.html";
+}
+
+/* ===============================
+   SAFE JWT DECODER
+================================*/
+function getUserIdFromToken(token){
+
+try{
+
+// get payload
+const base64Url = token.split('.')[1];
+
+// convert Base64URL → Base64
+const base64 = base64Url
+.replace(/-/g,'+')
+.replace(/_/g,'/');
+
+// decode
+const jsonPayload = decodeURIComponent(
+atob(base64)
+.split('')
+.map(c => '%' + ('00'+c.charCodeAt(0).toString(16)).slice(-2))
+.join('')
+);
+
+const decoded = JSON.parse(jsonPayload);
+
+console.log("JWT Payload:",decoded);
+
+return decoded.id; // must exist in JWT
+
+}catch(error){
+console.error("Token decode failed",error);
+return null;
+}
+
+}
+
+/* ===============================
+   FETCH LOGGED USER
+================================*/
+async function getUser(){
+
+const userId = getUserIdFromToken(token);
+
+if(!userId){
+alert("Invalid token (id missing)");
+return;
+}
+
+try{
+
+const res = await fetch(BASE+"/"+userId,{
+headers:{
+Authorization:"Bearer "+token
+}
+});
+
+if(!res.ok){
+throw new Error(res.status);
+}
+
+const u = await res.json();
+
+output.innerHTML=`
+<tr class="border-b border-gray-600">
+<td class="p-3 font-semibold">ID</td>
+<td class="p-3">${u.id}</td>
+</tr>
+
+<tr class="border-b border-gray-600">
+<td class="p-3 font-semibold">Name</td>
+<td class="p-3">${u.fullname}</td>
+</tr>
+
+<tr class="border-b border-gray-600">
+<td class="p-3 font-semibold">Email</td>
+<td class="p-3">${u.emailid}</td>
+</tr>
+
+<tr>
+<td class="p-3 font-semibold">Role</td>
+<td class="p-3">${u.role}</td>
+</tr>
+`;
+
+}catch(err){
+console.error(err);
+alert("Failed to fetch user");
+}
+
+}
+
+/* ===============================
+   AUTO LOAD PROFILE
+================================*/
+getUser();
+
+</script>
+
+</body>
+</html>

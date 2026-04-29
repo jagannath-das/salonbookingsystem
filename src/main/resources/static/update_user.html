@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Update User</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+*{font-family:Poppins,sans-serif;}
+</style>
+</head>
+
+<body class="text-white">
+
+<section class="min-h-screen flex flex-col items-center justify-center
+bg-cover bg-center"
+style="background-image:url('https://assets.prebuiltui.com/images/components/hero-section/hero-galaxy-bg.png')">
+
+<h2 class="text-4xl mb-6">Update My Profile</h2>
+
+<!-- ❌ REMOVED USER ID INPUT -->
+
+<input id="fullname" placeholder="Full Name"
+class="text-black p-2 rounded mb-2">
+
+<input id="emailid" placeholder="Email"
+class="text-black p-2 rounded mb-4">
+
+<button onclick="updateUser()"
+class="bg-green-600 px-6 py-2 rounded hover:bg-green-700">
+Update
+</button>
+
+<a href="user_dashboard.html" class="mt-6 underline">Back</a>
+
+</section>
+
+<script>
+
+const BASE=window.location.origin+"/user";
+const token=localStorage.getItem("token");
+
+if(!token){
+location.href="login.html";
+}
+
+/* ---------- DECODE JWT ---------- */
+function getUserIdFromToken(){
+
+const payload = token.split('.')[1];
+const decoded = JSON.parse(atob(payload));
+
+return decoded.id;   // must exist in JWT
+}
+
+/* ---------- UPDATE USER ---------- */
+async function updateUser(){
+
+const userId = getUserIdFromToken();
+
+const res = await fetch(BASE+"/updateuser/"+userId,{
+method:"PUT",
+headers:{
+"Content-Type":"application/json",
+Authorization:"Bearer "+token
+},
+body:JSON.stringify({
+fullname:fullname.value,
+emailid:emailid.value
+})
+});
+
+alert(await res.text());
+}
+
+</script>
+
+</body>
+</html>

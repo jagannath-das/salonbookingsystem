@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>Salon Admin Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+*{font-family:Poppins,sans-serif;}
+</style>
+
+</head>
+
+<body class="text-white">
+
+<section class="min-h-screen bg-cover bg-center"
+style="background-image:url('https://assets.prebuiltui.com/images/components/hero-section/hero-galaxy-bg.png')">
+
+<div class="min-h-screen bg-black/70 p-10">
+
+<h1 class="text-4xl text-center mb-10 font-bold">
+Salon Admin Dashboard
+</h1>
+
+<div class="max-w-3xl mx-auto mb-6 text-right">
+<button onclick="logout()" class="bg-red-600 px-5 py-2 rounded hover:bg-red-700">
+Logout
+</button>
+</div>
+
+<div id="result" class="text-center text-green-400 mb-6"></div>
+
+<div class="bg-white/10 p-6 rounded-xl max-w-3xl mx-auto">
+
+<h2 class="text-xl mb-4">Salon Details</h2>
+
+<input id="salonName" placeholder="Salon Name"
+class="w-full mb-2 p-2 text-black rounded">
+
+<input id="email" placeholder="Email"
+class="w-full mb-2 p-2 text-black rounded">
+
+<input id="phone" placeholder="Phone"
+class="w-full mb-2 p-2 text-black rounded">
+
+<input id="location" placeholder="Location"
+class="w-full mb-4 p-2 text-black rounded">
+
+<div class="grid md:grid-cols-2 gap-3 mb-4">
+<div>
+<label class="block mb-1">Opening Time</label>
+<input type="time" id="openingtime" required
+class="w-full p-2 text-black rounded">
+</div>
+
+<div>
+<label class="block mb-1">Closing Time</label>
+<input type="time" id="closingtime" required
+class="w-full p-2 text-black rounded">
+</div>
+</div>
+
+<label>Salon Image</label>
+<input type="file" id="salonImage" class="mb-6">
+
+
+<h2 class="text-xl mb-4">Services</h2>
+
+<div id="servicesContainer"></div>
+
+<button onclick="addServiceField()"
+class="bg-blue-600 px-4 py-2 rounded mb-6">
++ Add Service
+</button>
+
+<br>
+
+<button onclick="createSalonWithServices()"
+class="bg-purple-600 px-8 py-3 rounded">
+Create Salon With Services
+</button>
+
+</div>
+
+<div class="bg-white/10 p-6 rounded-xl max-w-3xl mx-auto mt-8">
+
+<h2 class="text-xl mb-4">Add Service To Existing Salon</h2>
+
+<input id="selectedSalonId" type="hidden">
+
+<button onclick="loadSalonChoices()"
+class="bg-blue-600 px-4 py-2 rounded mb-4 hover:bg-blue-700">
+Choose Salon
+</button>
+
+<div id="selectedSalonText" class="mb-3 text-white/80">
+No salon selected
+</div>
+
+<div id="salonChoices" class="grid md:grid-cols-2 gap-3 mb-5"></div>
+
+<input id="existingServiceName" placeholder="Service Name"
+class="w-full mb-2 p-2 text-black rounded">
+
+<input id="existingServiceCost" placeholder="Price"
+class="w-full mb-2 p-2 text-black rounded">
+
+<div class="grid md:grid-cols-2 gap-3 mb-2">
+<div>
+<label class="block mb-1">Available Date</label>
+<input type="date" id="existingServiceDate"
+class="w-full p-2 text-black rounded">
+</div>
+
+<div>
+<label class="block mb-1">Available Time</label>
+<input type="time" id="existingServiceTime"
+class="w-full p-2 text-black rounded">
+</div>
+</div>
+
+<label>Service Image</label>
+<input type="file" id="existingServiceImage" class="block mb-6">
+
+<button onclick="addServiceToExistingSalon()"
+class="bg-green-600 px-8 py-3 rounded hover:bg-green-700">
+Add Service To Existing Salon
+</button>
+
+</div>
+</div>
+</section>
+
+<script>
+
+const result=document.getElementById("result");
+const token=localStorage.getItem("token");
+
+if(!token){
+window.location.href="login.html";
+}
+
+function logout(){
+localStorage.removeItem("token");
+localStorage.removeItem("userId");
+localStorage.removeItem("role");
+window.location.href="login.html";
+}
+
+function getValue(id){
+return document.getElementById(id).value;
+}
+
+function imageSrc(path){
+if(!path){
+return "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=300&q=80";
+}
+return path.startsWith("http") ? path : window.location.origin+path;
+}
+
+/* ================= IMAGE UPLOAD ================= */
+
+async function uploadImage(file){
+
+if(!file) return "";
+
+let formData=new FormData();
+formData.append("file",file);
+
+let res=await fetch(window.location.origin+"/upload",{
+method:"POST",
+headers:{
+Authorization:"Bearer "+token
+},
+body:formData
+});
+
+return await res.text(); // backend returns string
+}
+
+/* ================= ADD SERVICE FIELD ================= */
+
+function addServiceField(){
+
+let div=document.createElement("div");
+
+div.className="mb-4 border p-3 rounded";
+
+div.innerHTML=`
+<input placeholder="Service Name"
+class="serviceName w-full mb-2 p-2 text-black rounded">
+
+<input placeholder="Price"
+class="serviceCost w-full mb-2 p-2 text-black rounded">
+
+<div class="grid md:grid-cols-2 gap-3 mb-2">
+<div>
+<label class="block mb-1">Available Date</label>
+<input type="date" class="serviceDate w-full p-2 text-black rounded">
+</div>
+
+<div>
+<label class="block mb-1">Available Time</label>
+<input type="time" class="serviceTime w-full p-2 text-black rounded">
+</div>
+</div>
+
+<label>Service Image</label>
+<input type="file" class="serviceImage">
+`;
+
+document.getElementById("servicesContainer").appendChild(div);
+}
+
+/* ================= SAFE FETCH ================= */
+
+async function fetchJSON(url,options){
+
+let res=await fetch(url,options);
+
+let text=await res.text();
+
+if(!text){
+throw new Error("Empty response from "+url);
+}
+
+try{
+return JSON.parse(text);
+}catch{
+return text;
+}
+}
+
+async function fetchText(url,options){
+let res=await fetch(url,options);
+let text=await res.text();
+if(!res.ok){
+throw new Error(text || "Request failed: "+res.status);
+}
+return text;
+}
+
+/* ================= MAIN FUNCTION ================= */
+
+async function createSalonWithServices(){
+
+try{
+
+result.innerHTML="⏳ Creating Salon...";
+
+if(!getValue("openingtime") || !getValue("closingtime")){
+alert("Enter opening and closing time");
+return;
+}
+
+/* 1️⃣ Upload Salon Image */
+
+let salonImageUrl=
+await uploadImage(
+document.getElementById("salonImage").files[0]
+);
+
+/* 2️⃣ Create Salon */
+
+let salon=await fetchJSON(
+window.location.origin+"/salon/addsalon",
+{
+method:"POST",
+headers:{
+'Content-Type':'application/json',
+Authorization:"Bearer "+token
+},
+body:JSON.stringify({
+name:getValue("salonName"),
+email:getValue("email"),
+phone:getValue("phone"),
+location:getValue("location"),
+openingtime:getValue("openingtime"),
+closingtime:getValue("closingtime"),
+imageUrl:salonImageUrl
+})
+});
+
+let salonId=salon.id;
+
+console.log("Salon Created:",salon);
+
+/* 3️⃣ Services */
+
+let names=document.querySelectorAll(".serviceName");
+let costs=document.querySelectorAll(".serviceCost");
+let images=document.querySelectorAll(".serviceImage");
+let dates=document.querySelectorAll(".serviceDate");
+let times=document.querySelectorAll(".serviceTime");
+
+if(names.length === 0){
+throw new Error("Add at least one service");
+}
+
+for(let i=0;i<names.length;i++){
+
+if(!names[i].value || !costs[i].value){
+throw new Error("Enter service name and price");
+}
+
+let service=await fetchJSON(
+window.location.origin+"/salon/addservices",
+{
+method:"POST",
+headers:{
+'Content-Type':'application/json',
+Authorization:"Bearer "+token
+},
+body:JSON.stringify({
+name:names[i].value
+})
+});
+
+let serviceId=service.id;
+
+let imageUrl=await uploadImage(images[i].files[0]);
+
+await fetchText(
+window.location.origin+"/salon/addsalonservicesui",
+{
+method:"POST",
+headers:{
+'Content-Type':'application/json',
+Authorization:"Bearer "+token
+},
+body:JSON.stringify({
+salonid:salonId,
+servicesid:serviceId,
+cost:costs[i].value,
+imageUrl:imageUrl,
+date:dates[i].value || new Date().toISOString().slice(0,10),
+time:times[i].value || getValue("openingtime") || "00:00"
+})
+});
+
+}
+
+/* SUCCESS */
+
+result.innerHTML="✅ Salon & Services Created Successfully";
+
+}catch(err){
+
+console.error(err);
+result.innerHTML="❌ Error : "+err.message;
+alert(err.message);
+
+}
+
+}
+
+async function addServiceToExistingSalon(){
+
+try{
+
+result.innerHTML="Adding service...";
+
+const salonId=getValue("selectedSalonId").trim();
+const serviceName=getValue("existingServiceName").trim();
+const serviceCost=getValue("existingServiceCost").trim();
+const serviceDate=getValue("existingServiceDate");
+const serviceTime=getValue("existingServiceTime");
+
+if(!salonId || !serviceName || !serviceCost){
+throw new Error("Choose salon, enter service name and price");
+}
+
+let service=await fetchJSON(
+window.location.origin+"/salon/addservices",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+Authorization:"Bearer "+token
+},
+body:JSON.stringify({
+name:serviceName
+})
+});
+
+let imageUrl=await uploadImage(
+document.getElementById("existingServiceImage").files[0]
+);
+
+await fetchText(
+window.location.origin+"/salon/addsalonservicesui",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+Authorization:"Bearer "+token
+},
+body:JSON.stringify({
+salonid:salonId,
+servicesid:service.id,
+cost:serviceCost,
+imageUrl:imageUrl,
+date:serviceDate || new Date().toISOString().slice(0,10),
+time:serviceTime || "00:00"
+})
+});
+
+result.innerHTML="Service Added Successfully";
+document.getElementById("existingServiceName").value="";
+document.getElementById("existingServiceCost").value="";
+document.getElementById("existingServiceDate").value="";
+document.getElementById("existingServiceTime").value="";
+document.getElementById("existingServiceImage").value="";
+
+}catch(err){
+
+console.error(err);
+result.innerHTML="Error : "+err.message;
+alert(err.message);
+
+}
+
+}
+
+async function loadSalonChoices(){
+
+try{
+
+const res=await fetch(window.location.origin+"/salon/getallsalons",{
+headers:{Authorization:"Bearer "+token}
+});
+
+if(!res.ok){
+throw new Error("Unable to load salons");
+}
+
+const salons=await res.json();
+
+document.getElementById("salonChoices").innerHTML=salons.map(salon=>`
+<button type="button" onclick="selectExistingSalon('${salon.id}','${salon.name ?? ""}','${salon.location ?? ""}')"
+class="text-left bg-white/10 rounded p-3 hover:bg-white/20 border border-white/10">
+<img src="${imageSrc(salon.imageUrl)}" alt="${salon.name ?? "Salon"}"
+class="w-full h-28 object-cover rounded mb-2">
+<span class="block font-semibold">${salon.name ?? "Salon"}</span>
+<span class="block text-sm text-white/70">${salon.location ?? "Location not available"}</span>
+</button>
+`).join("") || "<div class='text-white/70'>No salons found</div>";
+
+}catch(err){
+
+console.error(err);
+alert(err.message);
+
+}
+
+}
+
+function selectExistingSalon(id,name,location){
+document.getElementById("selectedSalonId").value=id;
+document.getElementById("selectedSalonText").innerText=`Selected: ${name} - ${location}`;
+}
+
+addServiceField();
+loadSalonChoices();
+
+</script>
+
+</body>
+</html>

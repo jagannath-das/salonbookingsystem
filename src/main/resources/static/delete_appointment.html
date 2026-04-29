@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Delete Appointment</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="text-white">
+
+<section class="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+style="background-image:url('https://assets.prebuiltui.com/images/components/hero-section/hero-galaxy-bg.png')">
+
+<h2 class="text-4xl mb-6">Delete Appointment</h2>
+
+<input id="appid" placeholder="Appointment ID" class="text-black p-2 rounded mb-4">
+
+<button onclick="deleteAppointment()" class="bg-red-600 px-6 py-2 rounded">
+Delete
+</button>
+
+<a href="user_dashboard.html" class="mt-6 underline">Back</a>
+
+</section>
+
+<script>
+const BASE=window.location.origin+"/user";
+const token=localStorage.getItem("token");
+
+if(!token){
+window.location.href="login.html";
+}
+
+async function deleteAppointment(){
+
+const id=document.getElementById("appid").value.trim();
+
+if(!id){
+alert("Enter Appointment ID");
+return;
+}
+
+const res=await fetch(BASE+"/deleteappointment/"+id,{
+method:"DELETE",
+headers:{Authorization:"Bearer "+token}
+});
+
+alert(await res.text());
+if(res.ok){
+window.location.href="appointments.html";
+}
+}
+</script>
+
+</body>
+</html>

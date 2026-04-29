@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login - My Salon</title>
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    font-family:'Poppins',sans-serif;
+}
+
+/* IMPORTANT → removes white gaps */
+html, body{
+    height:100%;
+    margin:0;
+}
+</style>
+
+</head>
+
+<body class="text-white">
+
+<!-- ===== SAME BACKGROUND AS INDEX ===== -->
+<section
+class="min-h-screen w-full flex items-center justify-center
+bg-cover bg-center bg-no-repeat"
+style="background-image:url('https://assets.prebuiltui.com/images/components/hero-section/hero-galaxy-bg.png')">
+
+<!-- LOGIN CARD -->
+<div class="backdrop-blur-lg bg-white/10 border border-white/20
+rounded-2xl shadow-2xl p-8 w-full max-w-sm">
+
+<h2 class="text-3xl font-semibold text-center">
+Welcome Back
+</h2>
+
+<p class="text-center text-white/80 mt-2">
+Login to your Salon Account
+</p>
+
+<form class="mt-8" onsubmit="loginUser(event)">
+
+<label class="block mb-1 text-sm">Email address</label>
+<input type="email" id="email" required
+class="w-full p-3 mb-4 rounded-lg
+bg-white/10 border border-white/20
+focus:outline-none focus:ring-2 focus:ring-indigo-500">
+
+<label class="block mb-1 text-sm">Password</label>
+<input type="password" id="password" required
+class="w-full p-3 mb-3 rounded-lg
+bg-white/10 border border-white/20
+focus:outline-none focus:ring-2 focus:ring-pink-500">
+
+<div class="flex justify-between text-sm">
+<a href="/reset.html" class="text-indigo-300 hover:underline">
+Forgot password?
+</a>
+
+<a href="/register.html" class="text-indigo-300 hover:underline">
+Create account
+</a>
+</div>
+
+<button type="submit"
+class="w-full mt-8 py-3 rounded-lg
+bg-indigo-600 hover:bg-indigo-700 transition">
+Sign In
+</button>
+
+</form>
+
+</div>
+
+</section>
+
+<!-- ================= LOGIN SCRIPT ================= -->
+<script>
+async function loginUser(e) {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const response = await fetch(window.location.origin+"/auth/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            emailid: email,
+            password: password
+        })
+    });
+
+    const text = await response.text();
+    let data = {};
+    try {
+        data = text ? JSON.parse(text) : {};
+    } catch (err) {
+        data = { message: text };
+    }
+
+    if (response.ok) {
+
+        const roles = Array.isArray(data.role) ? data.role : [];
+        const role = roles.includes("ROLE_ADMIN")
+            ? "ROLE_ADMIN"
+            : roles.includes("ROLE_SALON")
+                ? "ROLE_SALON"
+                : "ROLE_USER";
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("role", role);
+
+        alert("Login Success");
+
+        switch(role){
+            case "ROLE_ADMIN":
+                window.location.href="/admin_dashboard.html";
+                break;
+
+            case "ROLE_SALON":
+                window.location.href="/salon_dashboard.html";
+                break;
+
+            case "ROLE_USER":
+                window.location.href="/user_dashboard.html";
+                break;
+
+            default:
+                alert("Unknown Role: " + role);
+        }
+
+    } else {
+        alert(data.message || "Login failed");
+    }
+}
+</script>
+
+</body>
+</html>

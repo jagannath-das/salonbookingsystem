@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Delete Account</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+*{font-family:Poppins,sans-serif;}
+</style>
+
+</head>
+
+<body class="text-white">
+
+<section
+class="min-h-screen flex flex-col items-center justify-center
+bg-cover bg-center"
+style="background-image:url('https://assets.prebuiltui.com/images/components/hero-section/hero-galaxy-bg.png')">
+
+<h2 class="text-4xl mb-6 text-red-400">
+Delete My Account
+</h2>
+
+<p class="mb-8 text-white/80 text-center max-w-md">
+This action is permanent.  
+All appointments and data will be removed.
+</p>
+
+<button onclick="deleteAccount()"
+class="bg-red-600 px-8 py-3 rounded-lg hover:bg-red-700 transition">
+Delete My Account
+</button>
+
+<a href="user_dashboard.html" class="mt-6 underline">
+Cancel
+</a>
+
+</section>
+
+<script>
+
+const BASE=window.location.origin+"/user";
+const token=localStorage.getItem("token");
+let userId=localStorage.getItem("userId");
+
+if(!token){
+location.href="login.html";
+}
+
+if(!userId && token){
+try{
+userId=JSON.parse(atob(token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).id;
+localStorage.setItem("userId",userId);
+}catch(e){}
+}
+
+async function deleteAccount(){
+
+if(!confirm("Are you sure you want to delete your account?"))
+return;
+
+if(!userId){
+alert("Login again");
+location.href="login.html";
+return;
+}
+
+const res = await fetch(BASE+"/deleteuser/"+userId,{
+method:"DELETE",
+headers:{
+Authorization:"Bearer "+token
+}
+});
+
+const msg = await res.text();
+
+alert(msg);
+
+localStorage.removeItem("token");
+localStorage.removeItem("userId");
+localStorage.removeItem("role");
+location.href="login.html";
+}
+
+</script>
+
+</body>
+</html>

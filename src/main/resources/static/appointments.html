@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Appointments</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="text-white">
+
+<section
+class="min-h-screen flex flex-col items-center justify-center bg-cover bg-center"
+style="background-image:url('https://assets.prebuiltui.com/images/components/hero-section/hero-galaxy-bg.png')">
+
+<h2 class="text-4xl mb-6 font-bold">My Appointments</h2>
+
+<table class="mt-6 bg-black/40 text-center rounded overflow-hidden">
+<thead class="bg-purple-700">
+<tr>
+<th class="p-3">ID</th>
+<th class="p-3">Image</th>
+<th class="p-3">Salon</th>
+<th class="p-3">Location</th>
+<th class="p-3">Service</th>
+<th class="p-3">Date</th>
+<th class="p-3">Time</th>
+<th class="p-3">Status</th>
+<th class="p-3">Action</th>
+</tr>
+</thead>
+
+<tbody id="output"></tbody>
+</table>
+
+<a href="user_dashboard.html" class="mt-6 underline">
+Back
+</a>
+
+</section>
+
+<script>
+
+const APP_BASE=window.location.origin;
+const BASE=APP_BASE+"/user";
+const token=localStorage.getItem("token");
+
+function imageSrc(path){
+if(!path){
+return "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=200&q=80";
+}
+return path.startsWith("http") ? path : APP_BASE+path;
+}
+
+/* =========================
+   LOGIN CHECK
+=========================*/
+if(!token){
+alert("Login first");
+window.location.href="login.html";
+}
+
+/* =========================
+   GET USER ID FROM TOKEN
+=========================*/
+function getUserIdFromToken(token){
+
+try{
+const base64Url = token.split('.')[1];
+
+const base64 = base64Url
+.replace(/-/g,'+')
+.replace(/_/g,'/');
+
+const jsonPayload = decodeURIComponent(
+atob(base64)
+.split('')
+.map(c => '%' + ('00'+c.charCodeAt(0).toString(16)).slice(-2))
+.join('')
+);
+
+const decoded = JSON.parse(jsonPayload);
+
+console.log("JWT Payload:",decoded);
+
+return decoded.id;
+
+}catch(e){
+console.error("Token decode error",e);
+return null;
+}
+}
+
+/* =========================
+   LOAD APPOINTMENTS
+=========================*/
+async function loadAppointments(){
+
+const userId = getUserIdFromToken(token);
+
+if(!userId){
+alert("Invalid token");
+return;
+}
+
+try{
+
+const res = await fetch(
+BASE+"/getappointment/userid/"+userId,
+{
+headers:{
+Authorization:"Bearer "+token
+}
+});
+
+if(!res.ok){
+throw new Error(res.status);
+}
+
+const list = await res.json();
+
+let rows="";
+
+list.forEach(a=>{
+rows+=`
+<tr class="border-b border-gray-600">
+<td class="p-2">${a.id}</td>
+<td class="p-2">
+<img src="${imageSrc(a.salonservices?.imageUrl || a.salonservices?.salon?.imageUrl)}"
+alt="${a.salonservices?.services?.name ?? "Service"}" class="w-16 h-16 object-cover rounded mx-auto">
+</td>
+<td class="p-2">${a.salonservices?.salon?.name ?? "N/A"}</td>
+<td class="p-2">${a.salonservices?.salon?.location ?? "N/A"}</td>
+<td class="p-2">${a.salonservices?.services?.name ?? "N/A"}</td>
+<td class="p-2">${a.appointmentDate}</td>
+<td class="p-2">${a.appointmentTime ?? ""}</td>
+<td class="p-2">${a.status ?? "Booked"}</td>
+<td class="p-2">
+<button onclick="deleteAppointment(${a.id})" class="bg-red-600 px-3 py-1 rounded hover:bg-red-700">
+Delete
+</button>
+</td>
+</tr>`;
+});
+
+output.innerHTML = rows || `<tr><td colspan="9" class="p-4">No appointments found</td></tr>`;
+
+}catch(err){
+console.error(err);
+alert("Failed to load appointments");
+}
+
+}
+
+/* =========================
+   AUTO LOAD
+=========================*/
+loadAppointments();
+
+async function deleteAppointment(id){
+if(!confirm("Cancel this appointment?")){
+return;
+}
+
+const res=await fetch(BASE+"/deleteappointment/"+id,{
+method:"DELETE",
+headers:{Authorization:"Bearer "+token}
+});
+
+alert(await res.text());
+if(res.ok){
+loadAppointments();
+}
+}
+
+</script>
+
+</body>
+</html>

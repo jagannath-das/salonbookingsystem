@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Admin Dashboard - My Salon</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+*{
+font-family:"Poppins",sans-serif;
+}
+</style>
+
+</head>
+
+<body class="text-white">
+
+<!-- ===== SAME BACKGROUND AS INDEX ===== -->
+<section
+class="min-h-screen flex flex-col justify-between
+bg-cover bg-center bg-no-repeat"
+style="background-image:url('https://assets.prebuiltui.com/images/components/hero-section/hero-galaxy-bg.png')">
+
+<!-- ================= NAVBAR ================= -->
+<nav class="flex justify-between items-center max-w-7xl mx-auto w-full p-6">
+
+<h1 class="text-xl font-semibold">
+My Salon Admin
+</h1>
+
+<button onclick="logout()"
+class="px-5 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition">
+Logout
+</button>
+
+</nav>
+
+
+<!-- ================= DASHBOARD ================= -->
+<div class="flex flex-col items-center text-center px-4">
+
+<h2 class="text-4xl md:text-5xl font-semibold mt-10">
+Admin Dashboard
+</h2>
+
+
+<!-- ===== BUTTONS ===== -->
+<div class="mt-10 flex flex-wrap gap-6 justify-center">
+
+<button onclick="loadUsers()"
+class="px-7 py-3 bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-lg">
+Get All Users
+</button>
+
+</div>
+
+
+<!-- ===== DELETE USER ===== -->
+<div class="mt-10">
+
+<input id="deleteId"
+placeholder="Enter User ID to Delete"
+class="text-black px-4 py-2 rounded"/>
+
+<button onclick="deleteUserById()"
+class="ml-3 px-6 py-2 bg-red-600 rounded hover:bg-red-700">
+Delete User
+</button>
+
+</div>
+
+
+<!-- ===== MAKE SALON OWNER ===== -->
+<div class="mt-6">
+
+<input id="ownerId"
+placeholder="Enter User ID"
+class="text-black px-4 py-2 rounded"/>
+
+<button onclick="makeOwnerById()"
+class="ml-3 px-6 py-2 bg-green-600 rounded hover:bg-green-700">
+Make Salon Owner
+</button>
+
+</div>
+
+
+<!-- ===== USERS TABLE ===== -->
+<div class="overflow-x-auto mt-12 w-full max-w-5xl">
+
+<table class="w-full text-center bg-black/40 backdrop-blur rounded-lg">
+
+<thead class="bg-indigo-600">
+<tr>
+<th class="p-3">ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+</tr>
+</thead>
+
+<tbody id="userTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- ================= FOOTER SAME AS HOME ================= -->
+<footer class="flex flex-col items-center py-16 text-white/70">
+
+<h2 class="text-2xl font-semibold text-white">
+My Salon
+</h2>
+
+<p class="mt-4 text-center">
+Copyright © 2025 My Salon. All rights reserved.
+</p>
+
+<div class="flex gap-6 mt-6">
+<a href="https://www.facebook.com/share/1Gxkq2zfui/" class="hover:text-white transition">Facebook</a>
+<a href="https://www.instagram.com/jagannath1595?igsh=cHJzdmtlcnR0M3Bs" class="hover:text-white transition">Instagram</a>
+<a href="https://www.linkedin.com/in/jagannath-das2?utm_source=share_via&utm_content=profile&utm_medium=member_android" class="hover:text-white transition">LinkedIn</a>
+<a href="#" class="hover:text-white transition">Twitter</a>
+</div>
+
+</footer>
+
+</section>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+<script>
+
+const APP_BASE=window.location.origin;
+const BASE_URL=APP_BASE+"/admin";
+const token=localStorage.getItem("token");
+
+if(!token){
+window.location.href="login.html";
+}
+
+/* ===== GET ALL USERS ===== */
+async function loadUsers(){
+
+try{
+
+const response = await fetch(BASE_URL+"/getallusers",{
+headers:{
+"Authorization":"Bearer "+token
+}
+});
+
+if(!response.ok){
+throw new Error("Unauthorized");
+}
+
+const users = await response.json();
+
+let rows="";
+
+users.forEach(u=>{
+rows+=`
+<tr class="border-b border-gray-500">
+<td class="p-3">${u.id}</td>
+<td>${u.fullname}</td>
+<td>${u.emailid}</td>
+<td>${Array.isArray(u.role)?u.role.join(", "):u.role}</td>
+</tr>
+`;
+});
+
+document.getElementById("userTable").innerHTML=rows;
+
+}catch(err){
+console.error(err);
+alert("Failed to load users");
+}
+}
+
+
+
+/* ===== DELETE USER BY ID ===== */
+function deleteUserById(){
+
+const id=document.getElementById("deleteId").value.trim();
+
+if(!id){
+alert("Enter User ID");
+return;
+}
+
+fetch(BASE_URL+"/deleteuser/"+id,{
+method:"DELETE",
+headers:{
+"Authorization":"Bearer "+token
+}
+})
+.then(res=>res.text())
+.then(msg=>{
+alert(msg || "User Deleted");
+loadUsers();
+})
+.catch(err=>{
+console.error(err);
+alert("Failed to delete user");
+});
+}
+
+
+/* ===== MAKE SALON OWNER ===== */
+function makeOwnerById(){
+
+const id=document.getElementById("ownerId").value.trim();
+
+if(!id){
+alert("Enter User ID");
+return;
+}
+
+fetch(BASE_URL+"/makeSalonOwner/"+id,{
+method:"PUT",
+headers:{
+"Authorization":"Bearer "+token
+}
+})
+.then(res=>res.text())
+.then(msg=>{
+alert(msg);
+loadUsers();
+})
+.catch(err=>{
+console.error(err);
+alert("Failed to update role");
+});
+}
+
+
+/* ===== LOGOUT ===== */
+function logout(){
+localStorage.removeItem("token");
+window.location.href="login.html";
+}
+
+</script>
+
+</body>
+</html>

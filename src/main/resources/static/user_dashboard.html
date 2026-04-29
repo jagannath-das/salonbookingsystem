@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+*{font-family:Poppins,sans-serif;}
+</style>
+</head>
+
+<body class="text-white">
+
+<section
+class="min-h-screen flex flex-col justify-between
+bg-cover bg-center"
+style="background-image:url('https://assets.prebuiltui.com/images/components/hero-section/hero-galaxy-bg.png')">
+
+<!-- NAVBAR -->
+<nav class="flex justify-between max-w-7xl mx-auto w-full p-6">
+<h1 class="text-xl font-semibold">My Salon</h1>
+
+<button onclick="logout()"
+class="bg-red-600 px-5 py-2 rounded-lg hover:bg-red-700">
+Logout
+</button>
+</nav>
+
+<!-- CONTENT -->
+<div class="flex flex-col items-center text-center">
+
+<h2 class="text-5xl mt-20">User Dashboard</h2>
+
+<div class="grid md:grid-cols-3 gap-6 mt-12">
+
+<a href="get_user.html" class="btn">Get User</a>
+<a href="update_user.html" class="btn">Update User</a>
+<a href="delete_user.html" class="btn">Delete User</a>
+
+<a href="appointments.html" class="btn">View Appointments</a>
+<a href="book_appointment.html" class="btn">Book Appointment</a>
+<a href="delete_appointment.html" class="btn">Delete Appointment</a>
+
+</div>
+
+</div>
+
+<footer class="text-center py-10 text-white/70">
+My Salon © 2025
+</footer>
+
+</section>
+
+<script>
+const token=localStorage.getItem("token");
+
+if(!token) location.href="login.html";
+
+function logout(){
+localStorage.removeItem("token");
+location.href="login.html";
+}
+</script>
+
+<style>
+.btn{
+background:#4f46e5;
+padding:15px 30px;
+border-radius:10px;
+transition:.3s;
+}
+.btn:hover{
+background:#4338ca;
+}
+</style>
+
+</body>
+</html>
