@@ -1,0 +1,10 @@
+.git
+.m2
+target
+uploads
+data
+*.log
+.classpath
+.factorypath
+.project
+.settings
