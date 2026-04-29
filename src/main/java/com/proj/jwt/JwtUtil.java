@@ -3,6 +3,7 @@ package com.proj.jwt;
 import java.security.Key;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -17,12 +18,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JwtUtil {
 
     // Secret must be minimum 32 characters
-    private final String SECRET =
-            "mysecretkeymysecretkeymysecretkey12";
+    private final String SECRET;
 
     // Convert String → Key object
-    private final Key SECRET_KEY =
-            Keys.hmacShaKeyFor(SECRET.getBytes());
+    private final Key SECRET_KEY;
+
+    public JwtUtil(@Value("${JWT_SECRET:mysecretkeymysecretkeymysecretkey12}") String secret) {
+        this.SECRET = secret;
+        this.SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
+    }
 
     /* =====================================================
        ✅ GENERATE TOKEN  (UPDATED)
