@@ -40,24 +40,30 @@ private SalonServicesrepository repo;
 	
 	
 	public String addsalonserviceui(salonservicesdto servicedto) 
-	{	
-		
-		Salon_Services service =new Salon_Services();
-		  Salon byId = salonrepo.findById(servicedto.getSalonid()).orElseThrow(()->new RuntimeException("salon not found"));
-		 Services ser= servicerepo.findById(servicedto.getServicesid()).orElseThrow(()->new RuntimeException("services not found"));
-		 
-		 
-		 service.setSalon(byId);
-		 service.setServices(ser);
-		 service.setCost(servicedto.getCost());
-		 service.setImageUrl(servicedto.getImageUrl());
-		 service.setDate(servicedto.getDate() != null ? servicedto.getDate() : LocalDate.now());
-		 service.setTime(servicedto.getTime() != null ? servicedto.getTime() : LocalTime.of(0, 0));
-		
-		 
-		 repo.save(service);
-		 return "service is saved";
-		}
+{	
+    if (servicedto.getSalonid() == null || servicedto.getServicesid() == null) {
+        throw new RuntimeException("Salon ID or Service ID cannot be null");
+    }
+
+    Salon_Services service = new Salon_Services();
+
+    Salon salon = salonrepo.findById(servicedto.getSalonid())
+            .orElseThrow(() -> new RuntimeException("salon not found"));
+
+    Services ser = servicerepo.findById(servicedto.getServicesid())
+            .orElseThrow(() -> new RuntimeException("services not found"));
+
+    service.setSalon(salon);
+    service.setServices(ser);
+    service.setCost(servicedto.getCost());
+    service.setImageUrl(servicedto.getImageUrl());
+    service.setDate(servicedto.getDate() != null ? servicedto.getDate() : LocalDate.now());
+    service.setTime(servicedto.getTime() != null ? servicedto.getTime() : LocalTime.of(0, 0));
+
+    repo.save(service);
+
+    return "service is saved";
+}
 
 
 	public List<Services> getallservicesofsalon(Long id) 
