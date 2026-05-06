@@ -41,10 +41,22 @@ private SalonServicesrepository repo;
 	
 	public String addsalonserviceui(salonservicesdto servicedto) 
 	{	
+		if (servicedto == null) {
+			throw new IllegalArgumentException("Salon service details are required");
+		}
+		if (servicedto.getSalonid() == null) {
+			throw new IllegalArgumentException("Salon id is required");
+		}
+		if (servicedto.getServicesid() == null) {
+			throw new IllegalArgumentException("Service id is required");
+		}
+		if (servicedto.getCost() == null) {
+			throw new IllegalArgumentException("Service cost is required");
+		}
 		
 		Salon_Services service =new Salon_Services();
-		  Salon byId = salonrepo.findById(servicedto.getSalonid()).orElseThrow(()->new RuntimeException("salon not found"));
-		 Services ser= servicerepo.findById(servicedto.getServicesid()).orElseThrow(()->new RuntimeException("services not found"));
+		  Salon byId = salonrepo.findById(servicedto.getSalonid()).orElseThrow(()->new IllegalArgumentException("Salon id " + servicedto.getSalonid() + " not found"));
+		 Services ser= servicerepo.findById(servicedto.getServicesid()).orElseThrow(()->new IllegalArgumentException("Service id " + servicedto.getServicesid() + " not found"));
 		 
 		 
 		 service.setSalon(byId);

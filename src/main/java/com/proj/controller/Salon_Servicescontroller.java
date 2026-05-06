@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,9 +31,13 @@ public String addsalonservice(@RequestBody Salon_Services services)
 
 
 @PostMapping("/salon/addsalonservicesui")//connect salon with services using dto class//it works
-public String addsalonserviceui(@RequestBody salonservicesdto servicedto)
+public ResponseEntity<String> addsalonserviceui(@RequestBody salonservicesdto servicedto)
 {
-	return service.addsalonserviceui(servicedto);
+	try {
+		return ResponseEntity.ok(service.addsalonserviceui(servicedto));
+	} catch (IllegalArgumentException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+	}
 }
 
 @GetMapping("/salon/getallservicesofsalon/salonid/{id}")

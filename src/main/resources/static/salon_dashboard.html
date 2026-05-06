@@ -292,6 +292,12 @@ if(!salonId){
 throw new Error("Salon was not created correctly");
 }
 
+salonId=Number(salonId);
+
+if(Number.isNaN(salonId) || salonId<=0){
+throw new Error("Salon id was not returned correctly");
+}
+
 let names=document.querySelectorAll(".serviceName");
 let costs=document.querySelectorAll(".serviceCost");
 let images=document.querySelectorAll(".serviceImage");
@@ -328,6 +334,10 @@ name:serviceName
 })
 });
 
+if(!service || !service.id){
+throw new Error("Service was not created correctly");
+}
+
 let imageUrl=await uploadImage(images[i].files[0]);
 
 await fetchText(
@@ -339,8 +349,8 @@ headers:{
 Authorization:"Bearer "+token
 },
 body:JSON.stringify({
-salonid:salonId,
-servicesid:service.id,
+salonid:Number(salonId),
+servicesid:Number(service.id),
 cost:serviceCost,
 imageUrl:imageUrl,
 date:dates[i].value || new Date().toISOString().slice(0,10),
@@ -396,6 +406,10 @@ name:serviceName
 })
 });
 
+if(!service || !service.id){
+throw new Error("Service was not created correctly");
+}
+
 let imageUrl=await uploadImage(
 document.getElementById("existingServiceImage").files[0]
 );
@@ -409,8 +423,8 @@ headers:{
 Authorization:"Bearer "+token
 },
 body:JSON.stringify({
-salonid:salonId,
-servicesid:service.id,
+salonid:Number(salonId),
+servicesid:Number(service.id),
 cost:serviceCost,
 imageUrl:imageUrl,
 date:serviceDate || new Date().toISOString().slice(0,10),
