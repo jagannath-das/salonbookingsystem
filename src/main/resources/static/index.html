@@ -4,8 +4,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Home - My Salon</title>
+<title>My Salon | Salon Booking and Salon Management Platform</title>
+<meta name="description" content="My Salon helps clients discover salons, book beauty appointments online, and helps salon owners manage services, schedules, and bookings in one place.">
+<meta name="keywords" content="salon booking, salon management, beauty appointment booking, salon owner software, hair salon booking, beauty parlour booking">
+<meta name="robots" content="index, follow">
+<meta name="author" content="My Salon">
+<link rel="canonical" href="/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="My Salon | Salon Booking and Salon Management Platform">
+<meta property="og:description" content="Find salons, book appointments, and manage salon services with one simple platform.">
+<meta property="og:url" content="/">
+<meta property="og:image" content="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1200&q=80">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="My Salon | Salon Booking and Salon Management Platform">
+<meta name="twitter:description" content="Online salon booking for customers and easy salon management tools for owners.">
+<meta name="twitter:image" content="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1200&q=80">
 
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -17,59 +30,126 @@
 }
 </style>
 
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "My Salon",
+  "url": "/",
+  "description": "Salon booking and salon management platform for customers and salon owners.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "/salon/findsalon/{location}",
+    "query-input": "required name=location"
+  }
+}
+</script>
 </head>
 
 <body class="text-white">
 
-<!-- ===== ONE CONTINUOUS BACKGROUND ===== -->
 <section
-class="min-h-screen flex flex-col justify-between
-bg-cover bg-center bg-no-repeat"
+class="min-h-screen flex flex-col justify-between bg-cover bg-center bg-no-repeat"
 style="background-image:url('https://assets.prebuiltui.com/images/components/hero-section/hero-galaxy-bg.png')">
 
-<!-- ================= NAVBAR ================= -->
 <nav class="flex justify-between items-center max-w-7xl mx-auto w-full p-6">
 
+<div>
 <h1 class="text-xl font-semibold">
 My Salon
 </h1>
+<p class="text-sm text-white/70">Salon booking for customers and growth tools for owners</p>
+</div>
+
+<div class="flex gap-3">
+<a href="register.html"
+class="px-5 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition">
+Register
+</a>
 
 <a href="login.html"
 class="px-5 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">
 Login
 </a>
+</div>
 
 </nav>
 
+<main class="flex-1">
+<section class="flex flex-col items-center text-center px-4 pt-12">
 
-<!-- ================= HERO CONTENT ================= -->
-<div class="flex flex-col items-center text-center px-4">
-
-<h2 class="text-4xl md:text-6xl font-semibold mt-20 max-w-3xl">
-Get into Salon to look Beautiful
-</h2>
-
-<p class="mt-6 text-white/80 text-lg">
-Simplify bookings. Delight clients. Grow your salon.
+<p class="uppercase tracking-[0.25em] text-white/70 text-sm">
+Salon Booking Software
 </p>
 
-<a href="login.html"
-class="mt-10 px-7 py-3 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition shadow-lg">
-Get Started
+<h2 class="text-4xl md:text-6xl font-semibold mt-6 max-w-4xl">
+Book salon appointments faster and help your salon business get discovered online
+</h2>
+
+<p class="mt-6 text-white/80 text-lg max-w-3xl">
+My Salon makes online salon booking easy for customers and gives salon owners a simple way to add salons, publish services, and manage appointments from one dashboard.
+</p>
+
+<div class="mt-10 flex flex-wrap gap-4 justify-center">
+<a href="register.html"
+class="px-7 py-3 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition shadow-lg">
+Create Free Account
 </a>
 
+<a href="login.html"
+class="px-7 py-3 bg-white/10 rounded-lg hover:bg-white/20 transition">
+Sign In
+</a>
 </div>
 
+</section>
 
-<!-- ================= FOOTER ================= -->
+<section class="max-w-6xl mx-auto px-4 py-20 grid md:grid-cols-3 gap-6">
+
+<article class="bg-black/30 backdrop-blur rounded-2xl p-6 border border-white/10">
+<h3 class="text-2xl font-semibold">For Customers</h3>
+<p class="mt-4 text-white/75">
+Search salons by location, explore available beauty services, and reserve appointment slots without calling the salon.
+</p>
+</article>
+
+<article class="bg-black/30 backdrop-blur rounded-2xl p-6 border border-white/10">
+<h3 class="text-2xl font-semibold">For Salon Owners</h3>
+<p class="mt-4 text-white/75">
+Add your salon profile, publish services with prices and timings, and manage new bookings through a dedicated salon owner dashboard.
+</p>
+</article>
+
+<article class="bg-black/30 backdrop-blur rounded-2xl p-6 border border-white/10">
+<h3 class="text-2xl font-semibold">For Growth</h3>
+<p class="mt-4 text-white/75">
+Structured SEO content, indexable pages, and clear salon service information help search engines understand your platform and improve discoverability.
+</p>
+</article>
+
+</section>
+
+<section class="max-w-5xl mx-auto px-4 pb-20">
+<div class="bg-black/35 rounded-3xl border border-white/10 p-8 md:p-12">
+<h3 class="text-3xl font-semibold text-center">Why choose My Salon?</h3>
+<div class="mt-8 grid md:grid-cols-2 gap-6 text-white/80">
+<p>My Salon supports salon booking, appointment management, beauty service listing, and service scheduling in one place.</p>
+<p>It is built for hair salons, beauty parlours, spas, and grooming businesses that want a faster digital booking flow.</p>
+<p>Customers can discover services and timings quickly, while salon owners can keep their salon listings updated with accurate details.</p>
+<p>The platform is designed to reduce missed calls, improve convenience, and present salon information clearly for search and social sharing.</p>
+</div>
+</div>
+</section>
+</main>
+
 <footer class="flex flex-col items-center py-16 text-white/70">
 
 <h2 class="text-2xl font-semibold text-white">
 My Salon
 </h2>
 
-<p class="mt-4 text-center">
-Copyright © 2025 My Salon. All rights reserved.
+<p class="mt-4 text-center max-w-2xl">
+Online salon booking and salon management software for beauty businesses that want better visibility and smoother appointment handling.
 </p>
 
 <div class="flex gap-6 mt-6">
@@ -78,6 +158,10 @@ Copyright © 2025 My Salon. All rights reserved.
 <a href="https://www.linkedin.com/in/jagannath-das2?utm_source=share_via&utm_content=profile&utm_medium=member_android" class="hover:text-white transition">LinkedIn</a>
 <a href="#" class="hover:text-white transition">Twitter</a>
 </div>
+
+<p class="mt-8 text-sm">
+Copyright © 2026 My Salon. All rights reserved.
+</p>
 
 </footer>
 

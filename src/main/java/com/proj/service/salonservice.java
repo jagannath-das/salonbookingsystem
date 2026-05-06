@@ -4,6 +4,7 @@ package com.proj.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +22,27 @@ public class salonservice {
 	private salonrepository repo;
 
 	public Salon addsalon(Salon salon) {
-		
-		 return repo.save(salon);
+		if (salon == null) {
+			throw new IllegalArgumentException("Salon details are required");
+		}
+
+		String name = normalize(salon.getName());
+		String email = normalize(salon.getEmail());
+		String phone = normalize(salon.getPhone());
+		String location = normalize(salon.getLocation());
+
+		if (name == null || email == null || phone == null || location == null
+				|| salon.getOpeningtime() == null || salon.getClosingtime() == null) {
+			throw new IllegalArgumentException("Salon name, email, phone, location, opening time and closing time are required");
+		}
+
+		salon.setName(name);
+		salon.setEmail(email.toLowerCase(Locale.ROOT));
+		salon.setPhone(phone);
+		salon.setLocation(location);
+		salon.setImageUrl(normalize(salon.getImageUrl()));
+
+		return repo.save(salon);
 		
 	}
 
@@ -46,13 +66,13 @@ public class salonservice {
 	        {
 	            Salon existing = optional.get();
 
-	            existing.setName(salon.getName());
-	            existing.setEmail(salon.getEmail());
-	            existing.setPhone(salon.getPhone());
-	            existing.setLocation(salon.getLocation());
+	            existing.setName(normalize(salon.getName()));
+	            existing.setEmail(normalize(salon.getEmail()));
+	            existing.setPhone(normalize(salon.getPhone()));
+	            existing.setLocation(normalize(salon.getLocation()));
 	            existing.setOpeningtime(salon.getOpeningtime());
 	            existing.setClosingtime(salon.getClosingtime());
-	            existing.setImageUrl(salon.getImageUrl());
+	            existing.setImageUrl(normalize(salon.getImageUrl()));
 	            
 
 	            repo.save(existing);
@@ -67,6 +87,14 @@ public class salonservice {
 		repo.deleteById(id);
 		return "salon is deleted";
 		
+	}
+
+	private String normalize(String value) {
+		if (value == null) {
+			return null;
+		}
+		String trimmed = value.trim();
+		return trimmed.isEmpty() ? null : trimmed;
 	}
 
 	

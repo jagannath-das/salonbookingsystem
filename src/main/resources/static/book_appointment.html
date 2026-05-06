@@ -145,12 +145,12 @@ class="w-full md:w-44 h-32 object-cover rounded">
 <div class="mt-2 grid gap-2">
 ${services.map(s=>`
 <button class="text-left bg-white/10 p-2 rounded hover:bg-white/20 flex gap-3 items-center"
-onclick="selectService('${s.id}','${s.date ?? ""}','${s.time ?? ""}')">
+onclick="selectService('${s.id}')">
 <img src="${imageSrc(s.imageUrl || salon.imageUrl)}" alt="${s.services?.name ?? "Service"}"
 class="w-16 h-16 object-cover rounded">
 <span>
 <span class="block font-semibold">${s.services?.name ?? "Service"}</span>
-<span class="block text-sm text-white/80">Rs. ${s.cost ?? ""} | ${s.date ?? ""} ${s.time ?? ""}</span>
+<span class="block text-sm text-white/80">Rs. ${s.cost ?? ""}</span>
 <span class="block text-xs text-white/60">Salon Service ID: ${s.id}</span>
 </span>
 </button>
@@ -164,14 +164,8 @@ class="w-16 h-16 object-cover rounded">
 salons.innerHTML=html || "<div class='bg-black/50 p-4 rounded'>No salons found</div>";
 }
 
-function selectService(id, serviceDate, serviceTime){
+function selectService(id){
 document.getElementById("serviceid").value=id;
-if(serviceDate){
-document.getElementById("date").value=serviceDate;
-}
-if(serviceTime){
-document.getElementById("time").value=serviceTime.substring(0,5);
-}
 }
 
 </script>

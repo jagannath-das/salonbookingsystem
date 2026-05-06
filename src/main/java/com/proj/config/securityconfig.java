@@ -276,6 +276,8 @@ public class securityconfig {
                             "/js/**",
                             "/images/**",
                             "/uploads/**",
+                            "/robots.txt",
+                            "/sitemap.xml",
                             "/h2-console/**",
                             "/error",
                             "/favicon.ico"
