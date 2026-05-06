@@ -2,6 +2,7 @@ package com.proj.controller;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,10 +32,10 @@ public String addsalonservice(@RequestBody Salon_Services services)
 
 
 @PostMapping("/salon/addsalonservicesui")//connect salon with services using dto class//it works
-public ResponseEntity<String> addsalonserviceui(@RequestBody salonservicesdto servicedto)
+public ResponseEntity<String> addsalonserviceui(@RequestBody Map<String, Object> payload)
 {
 	try {
-		return ResponseEntity.ok(service.addsalonserviceui(servicedto));
+		return ResponseEntity.ok(service.addsalonserviceui(payload));
 	} catch (IllegalArgumentException ex) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
 	}
