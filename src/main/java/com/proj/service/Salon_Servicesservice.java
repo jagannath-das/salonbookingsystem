@@ -1,7 +1,6 @@
 package com.proj.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -53,6 +52,9 @@ private SalonServicesrepository repo;
 		if (servicedto.getCost() == null) {
 			throw new IllegalArgumentException("Service cost is required");
 		}
+		if (servicedto.getCost() < 0) {
+			throw new IllegalArgumentException("Service cost must be non-negative");
+		}
 		
 		Salon_Services service =new Salon_Services();
 		  Salon byId = salonrepo.findById(servicedto.getSalonid()).orElseThrow(()->new IllegalArgumentException("Salon id " + servicedto.getSalonid() + " not found"));
@@ -63,8 +65,8 @@ private SalonServicesrepository repo;
 		 service.setServices(ser);
 		 service.setCost(servicedto.getCost());
 		 service.setImageUrl(servicedto.getImageUrl());
-		 service.setDate(servicedto.getDate() != null ? servicedto.getDate() : LocalDate.now());
-		 service.setTime(servicedto.getTime() != null ? servicedto.getTime() : LocalTime.of(0, 0));
+		 service.setDate(LocalDate.now());
+		 service.setTime(LocalTime.of(0, 0));
 		
 		 
 		 repo.save(service);
