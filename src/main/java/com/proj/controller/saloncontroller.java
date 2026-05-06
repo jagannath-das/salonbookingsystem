@@ -3,9 +3,9 @@ package com.proj.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import com.proj.model.Salon;
-import com.proj.model.User;
 import com.proj.service.salonservice;
-import com.proj.service.Userservice;
+
+import jakarta.validation.Valid;
 
 @RestController
 public class saloncontroller 
@@ -29,8 +29,12 @@ public class saloncontroller
 
 
 	@PostMapping("/salon/addsalon")
-	public Salon adduser(@RequestBody Salon salon){
-	    return service.addsalon(salon);
+	public ResponseEntity<?> adduser(@Valid @RequestBody Salon salon){
+		try {
+			return ResponseEntity.ok(service.addsalon(salon));
+		} catch (IllegalArgumentException ex) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+		}
 	}
 	
 

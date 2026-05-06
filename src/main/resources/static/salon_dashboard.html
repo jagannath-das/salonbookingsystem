@@ -3,6 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salon Admin Dashboard</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
@@ -39,10 +40,10 @@ Logout
 <input id="salonName" placeholder="Salon Name"
 class="w-full mb-2 p-2 text-black rounded">
 
-<input id="email" placeholder="Email"
+<input id="email" type="email" placeholder="Email"
 class="w-full mb-2 p-2 text-black rounded">
 
-<input id="phone" placeholder="Phone"
+<input id="phone" type="tel" placeholder="Phone"
 class="w-full mb-2 p-2 text-black rounded">
 
 <input id="location" placeholder="Location"
@@ -104,7 +105,7 @@ No salon selected
 <input id="existingServiceName" placeholder="Service Name"
 class="w-full mb-2 p-2 text-black rounded">
 
-<input id="existingServiceCost" placeholder="Price"
+<input id="existingServiceCost" type="number" min="0" step="0.01" placeholder="Price"
 class="w-full mb-2 p-2 text-black rounded">
 
 <div class="grid md:grid-cols-2 gap-3 mb-2">
@@ -150,7 +151,7 @@ window.location.href="login.html";
 }
 
 function getValue(id){
-return document.getElementById(id).value;
+return document.getElementById(id).value.trim();
 }
 
 function imageSrc(path){
@@ -159,8 +160,6 @@ return "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fi
 }
 return path.startsWith("http") ? path : window.location.origin+path;
 }
-
-/* ================= IMAGE UPLOAD ================= */
 
 async function uploadImage(file){
 
@@ -177,10 +176,12 @@ Authorization:"Bearer "+token
 body:formData
 });
 
-return await res.text(); // backend returns string
+let text=await res.text();
+if(!res.ok){
+throw new Error(text || "Image upload failed");
 }
-
-/* ================= ADD SERVICE FIELD ================= */
+return text;
+}
 
 function addServiceField(){
 
@@ -193,6 +194,7 @@ div.innerHTML=`
 class="serviceName w-full mb-2 p-2 text-black rounded">
 
 <input placeholder="Price"
+type="number" min="0" step="0.01"
 class="serviceCost w-full mb-2 p-2 text-black rounded">
 
 <div class="grid md:grid-cols-2 gap-3 mb-2">
@@ -214,22 +216,23 @@ class="serviceCost w-full mb-2 p-2 text-black rounded">
 document.getElementById("servicesContainer").appendChild(div);
 }
 
-/* ================= SAFE FETCH ================= */
-
 async function fetchJSON(url,options){
 
 let res=await fetch(url,options);
-
 let text=await res.text();
 
+if(!res.ok){
+throw new Error(text || "Request failed: "+res.status);
+}
+
 if(!text){
-throw new Error("Empty response from "+url);
+return {};
 }
 
 try{
 return JSON.parse(text);
 }catch{
-return text;
+throw new Error(text || "Invalid response from "+url);
 }
 }
 
@@ -242,52 +245,52 @@ throw new Error(text || "Request failed: "+res.status);
 return text;
 }
 
-/* ================= MAIN FUNCTION ================= */
-
 async function createSalonWithServices(){
 
 try{
 
-result.innerHTML="⏳ Creating Salon...";
+result.innerHTML="Creating salon...";
 
-if(!getValue("openingtime") || !getValue("closingtime")){
-alert("Enter opening and closing time");
-return;
+const salonName=getValue("salonName");
+const email=getValue("email");
+const phone=getValue("phone");
+const location=getValue("location");
+const openingtime=getValue("openingtime");
+const closingtime=getValue("closingtime");
+
+if(!salonName || !email || !phone || !location || !openingtime || !closingtime){
+throw new Error("Enter salon name, email, phone, location, opening time and closing time");
 }
-
-/* 1️⃣ Upload Salon Image */
 
 let salonImageUrl=
 await uploadImage(
 document.getElementById("salonImage").files[0]
 );
 
-/* 2️⃣ Create Salon */
-
 let salon=await fetchJSON(
 window.location.origin+"/salon/addsalon",
 {
 method:"POST",
 headers:{
-'Content-Type':'application/json',
+"Content-Type":"application/json",
 Authorization:"Bearer "+token
 },
 body:JSON.stringify({
-name:getValue("salonName"),
-email:getValue("email"),
-phone:getValue("phone"),
-location:getValue("location"),
-openingtime:getValue("openingtime"),
-closingtime:getValue("closingtime"),
+name:salonName,
+email:email,
+phone:phone,
+location:location,
+openingtime:openingtime,
+closingtime:closingtime,
 imageUrl:salonImageUrl
 })
 });
 
-let salonId=salon.id;
+let salonId=salon && salon.id;
 
-console.log("Salon Created:",salon);
-
-/* 3️⃣ Services */
+if(!salonId){
+throw new Error("Salon was not created correctly");
+}
 
 let names=document.querySelectorAll(".serviceName");
 let costs=document.querySelectorAll(".serviceCost");
@@ -295,14 +298,21 @@ let images=document.querySelectorAll(".serviceImage");
 let dates=document.querySelectorAll(".serviceDate");
 let times=document.querySelectorAll(".serviceTime");
 
-if(names.length === 0){
+if(names.length===0){
 throw new Error("Add at least one service");
 }
 
 for(let i=0;i<names.length;i++){
 
-if(!names[i].value || !costs[i].value){
+const serviceName=names[i].value.trim();
+const serviceCost=Number(costs[i].value);
+
+if(!serviceName || costs[i].value===""){
 throw new Error("Enter service name and price");
+}
+
+if(Number.isNaN(serviceCost) || serviceCost<0){
+throw new Error("Service price must be a valid non-negative number");
 }
 
 let service=await fetchJSON(
@@ -310,15 +320,13 @@ window.location.origin+"/salon/addservices",
 {
 method:"POST",
 headers:{
-'Content-Type':'application/json',
+"Content-Type":"application/json",
 Authorization:"Bearer "+token
 },
 body:JSON.stringify({
-name:names[i].value
+name:serviceName
 })
 });
-
-let serviceId=service.id;
 
 let imageUrl=await uploadImage(images[i].files[0]);
 
@@ -327,29 +335,27 @@ window.location.origin+"/salon/addsalonservicesui",
 {
 method:"POST",
 headers:{
-'Content-Type':'application/json',
+"Content-Type":"application/json",
 Authorization:"Bearer "+token
 },
 body:JSON.stringify({
 salonid:salonId,
-servicesid:serviceId,
-cost:costs[i].value,
+servicesid:service.id,
+cost:serviceCost,
 imageUrl:imageUrl,
 date:dates[i].value || new Date().toISOString().slice(0,10),
-time:times[i].value || getValue("openingtime") || "00:00"
+time:times[i].value || openingtime || "00:00"
 })
 });
 
 }
 
-/* SUCCESS */
-
-result.innerHTML="✅ Salon & Services Created Successfully";
+result.innerHTML="Salon and services created successfully";
 
 }catch(err){
 
 console.error(err);
-result.innerHTML="❌ Error : "+err.message;
+result.innerHTML="Error: "+err.message;
 alert(err.message);
 
 }
@@ -362,14 +368,19 @@ try{
 
 result.innerHTML="Adding service...";
 
-const salonId=getValue("selectedSalonId").trim();
-const serviceName=getValue("existingServiceName").trim();
-const serviceCost=getValue("existingServiceCost").trim();
+const salonId=getValue("selectedSalonId");
+const serviceName=getValue("existingServiceName");
+const serviceCostText=getValue("existingServiceCost");
 const serviceDate=getValue("existingServiceDate");
 const serviceTime=getValue("existingServiceTime");
+const serviceCost=Number(serviceCostText);
 
-if(!salonId || !serviceName || !serviceCost){
+if(!salonId || !serviceName || serviceCostText===""){
 throw new Error("Choose salon, enter service name and price");
+}
+
+if(Number.isNaN(serviceCost) || serviceCost<0){
+throw new Error("Service price must be a valid non-negative number");
 }
 
 let service=await fetchJSON(
@@ -407,7 +418,7 @@ time:serviceTime || "00:00"
 })
 });
 
-result.innerHTML="Service Added Successfully";
+result.innerHTML="Service added successfully";
 document.getElementById("existingServiceName").value="";
 document.getElementById("existingServiceCost").value="";
 document.getElementById("existingServiceDate").value="";
@@ -417,7 +428,7 @@ document.getElementById("existingServiceImage").value="";
 }catch(err){
 
 console.error(err);
-result.innerHTML="Error : "+err.message;
+result.innerHTML="Error: "+err.message;
 alert(err.message);
 
 }
