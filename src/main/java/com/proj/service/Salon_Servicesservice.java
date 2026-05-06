@@ -91,6 +91,10 @@ private SalonServicesrepository repo;
 		service.setImageUrl(imageUrl);
 		service.setDate(LocalDate.now());
 		service.setTime(LocalTime.of(0, 0));
+		if (service.getId() == null) {
+			Long maxId = repo.findMaxId();
+			service.setId((maxId == null ? 0L : maxId) + 1);
+		}
 
 		repo.save(service);
 		return "service is saved";

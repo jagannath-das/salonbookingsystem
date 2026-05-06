@@ -15,6 +15,10 @@ public class Servicesservice
 private servicesrepository repo;
 
 public Services addnewservice(Services service) {
+	if (service.getId() == null) {
+		Long maxId = repo.findMaxId();
+		service.setId((maxId == null ? 0L : maxId) + 1);
+	}
 	return repo.save(service);
 	
 }

@@ -78,11 +78,19 @@ public class Appointmentservice {
 		appointment.setAppointmentDate(apdto.getAppointmentDate());
 		appointment.setAppointmentTime(apdto.getAppointmentTime());
 		appointment.setStatus(apdto.getStatus() == null || apdto.getStatus().isBlank() ? "BOOKED" : apdto.getStatus());
+		if (appointment.getId() == null) {
+			Long maxId = repo.findMaxId();
+			appointment.setId((maxId == null ? 0L : maxId) + 1);
+		}
 		repo.save(appointment);
 		return ResponseEntity.ok("your appointment is saved");
 	}
 	
 	public String bookappointment(Appointment appointment) {
+	 if (appointment.getId() == null) {
+	 	Long maxId = repo.findMaxId();
+	 	appointment.setId((maxId == null ? 0L : maxId) + 1);
+	 }
 	 Appointment save = repo.save(appointment);
 	 
     return "appointment is booked";

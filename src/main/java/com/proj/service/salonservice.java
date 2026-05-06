@@ -41,6 +41,7 @@ public class salonservice {
 		salon.setPhone(phone);
 		salon.setLocation(location);
 		salon.setImageUrl(normalize(salon.getImageUrl()));
+		ensureId(salon);
 
 		return repo.save(salon);
 		
@@ -95,6 +96,13 @@ public class salonservice {
 		}
 		String trimmed = value.trim();
 		return trimmed.isEmpty() ? null : trimmed;
+	}
+
+	private void ensureId(Salon salon) {
+		if (salon.getId() == null) {
+			Long maxId = repo.findMaxId();
+			salon.setId((maxId == null ? 0L : maxId) + 1);
+		}
 	}
 
 	

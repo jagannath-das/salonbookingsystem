@@ -18,4 +18,7 @@ public interface SalonServicesrepository extends JpaRepository<Salon_Services,Lo
 	@Query("select ss from Salon_Services ss where ss.services.id = :serviceId order by ss.id desc")
 	List<Salon_Services> findByServiceId(@Param("serviceId") Long serviceId);
 
+	@Query("select coalesce(max(ss.id), 0) from Salon_Services ss")
+	Long findMaxId();
+
 }
